@@ -73,25 +73,47 @@ canvas{display:block;width:100%;aspect-ratio:16/9;height:auto;border:3px solid v
 .row .btn{flex:1 1 120px}
 .keys{margin:0;font-size:13px;font-weight:700;opacity:.8}
 @media (max-width:480px){.pb{min-width:70px}.pb.jump{min-width:110px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.lvl{flex-direction:row;align-items:center;justify-content:center;gap:14px;min-height:104px;font-size:48px;padding:12px 18px}
+.lvl.meadow{background:#9be3a0}
+.spk{display:block}
+button.animal{font:inherit;color:inherit;cursor:pointer;min-height:140px;justify-content:center;position:relative;touch-action:manipulation}
+button.animal .face{font-size:66px;height:76px}
+button.animal img.face{height:84px}
+button.animal:active:not(:disabled){transform:translate(4px,4px);box-shadow:0 0 0 var(--ink)}
+button.animal:disabled{opacity:.5;cursor:not-allowed}
+button.animal:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+.price{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-size:28px;font-variant-numeric:tabular-nums}
+.badge{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:var(--grass);border:3px solid var(--ink);display:grid;place-items:center;font-family:var(--font-display);font-size:18px}
+.animal.afford{animation:wig 1.2s ease-in-out infinite;background:#fff6cf}
+@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-2.5deg)}75%{transform:rotate(2.5deg)}}
+.iconbtn{display:inline-grid;place-items:center;padding:8px 12px}
+.iconbtn svg{display:block}
+#snd:not(.off) .slash{display:none}
+#snd.off .waves{display:none}
+.big{font-size:76px;line-height:1;text-align:center}
+.earn{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--font-display);font-size:68px;line-height:1;font-variant-numeric:tabular-nums}
+.earn .coin{width:42px;height:42px}
+.buyhint{display:flex;align-items:center;justify-content:center;gap:10px;font-size:46px;line-height:1;animation:wig 1.2s ease-in-out infinite}
+.buyhint img{height:56px}
+.pb.jump.nudge{animation:nudge .35s ease-in-out infinite alternate}
+@keyframes nudge{from{transform:scale(1)}to{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="wrap">
   <header>
     <h1>Slapanimal</h1>
     <div class="top-r">
-      <button class="btn small alt" id="snd" type="button" aria-pressed="true">Sound on</button>
+      <button class="btn small alt iconbtn" id="snd" type="button" aria-pressed="true" aria-label="Sound"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path class="waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/><path class="slash" d="M3 3l18 18"/></svg></button>
       <div class="pill" aria-label="Coins"><span class="coin"></span><span id="walletN">0</span></div>
     </div>
   </header>
 
   <section id="menu" style="display:flex;flex-direction:column;gap:16px">
-    <p class="lead">Run to the flag. Spikes hurt you, then you hurt yourself. Ouch pays, and coins buy new animals.</p>
     <div class="levels">
-      <button class="btn lvl" type="button" data-lvl="0">Spike Meadow<small>Spikes. Lots of spikes.</small></button>
-      <button class="btn lvl night" type="button" data-lvl="1">Halloween Night<small>Spikes, rolling pumpkins, ghosts</small></button>
+      <button class="btn lvl meadow" type="button" data-lvl="0" aria-label="Spike Meadow"><span aria-hidden="true">☀️</span><svg class="spk" viewBox="0 0 84 40" width="84" height="40" aria-hidden="true"><path d="M3 38 21 4 39 38ZM42 38 60 4 78 38Z" fill="#c9d3e6" stroke="#1c2340" stroke-width="3" stroke-linejoin="round"/></svg></button>
+      <button class="btn lvl night" type="button" data-lvl="1" aria-label="Halloween Night"><span aria-hidden="true">🎃👻</span></button>
     </div>
-    <h2>Pick your animal</h2>
     <div id="grid" class="grid"></div>
   </section>
 
@@ -100,11 +122,12 @@ canvas{display:block;width:100%;aspect-ratio:16/9;height:auto;border:3px solid v
       <canvas id="cv" width="800" height="450" aria-label="Game"></canvas>
       <div id="over" class="over" hidden>
         <div class="panel card">
-          <h2 id="ovT"></h2>
-          <ul class="tally" id="ovL"></ul>
+          <div class="big" id="ovFace" aria-hidden="true"></div>
+          <div class="earn"><span class="coin"></span><span id="ovN">0</span></div>
+          <div class="buyhint" id="ovBuy" hidden></div>
           <div class="row">
-            <button class="btn" id="again" type="button">Again</button>
-            <button class="btn alt" id="back" type="button">Animals</button>
+            <button class="btn iconbtn" id="again" type="button" aria-label="Play again"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 3v6h-6"/></svg></button>
+            <button class="btn alt iconbtn" id="back" type="button" aria-label="Animals"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/></svg></button>
           </div>
         </div>
       </div>
@@ -114,10 +137,9 @@ canvas{display:block;width:100%;aspect-ratio:16/9;height:auto;border:3px solid v
         <button class="btn pb alt" id="bl" type="button" aria-label="Move left">&larr;</button>
         <button class="btn pb alt" id="br" type="button" aria-label="Move right">&rarr;</button>
       </div>
-      <button class="btn small alt" id="quit" type="button">Quit</button>
-      <button class="btn pb jump" id="bj" type="button">JUMP</button>
+      <button class="btn alt iconbtn" id="quit" type="button" aria-label="Home"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/></svg></button>
+      <button class="btn pb jump" id="bj" type="button" aria-label="Jump"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V5M5 12l7-7 7 7"/></svg></button>
     </div>
-    <p class="keys">Keyboard: arrow keys or A/D to move, space to jump. After a spike gets you, press jump again to hurt yourself for bonus coins.</p>
   </section>
 </div>
 
@@ -236,7 +258,7 @@ function hurt(src){
   if(A.hallMult&&G.L.halloween)pay*=A.hallMult;
   pay=Math.round(pay);G.pay.ouch+=pay;
   var label=src==='spike'?'OUCH!':(src==='pumpkin'?'SPLAT!':'BOO!');
-  ftext(p.x+p.w/2,p.y-6,label+' +'+pay,'#ff4d5e',30);
+  ftext(p.x+p.w/2,p.y-6,'OUCH!','#ff4d5e',34);ftext(p.x+p.w/2,p.y+22,'+'+pay,'#ffc928',30);
   G.tumble=0.9;G.selfOwned=false;G.invuln=1.5;
   p.vy=-520;p.vx=-150*p.face;p.onGround=false;
   G.shake=reduce?0:0.3;
@@ -247,7 +269,7 @@ function hurt(src){
 function selfOwn(){
   var A=G.A,p=G.p;
   G.selfOwned=true;G.pay.own+=10;
-  ftext(p.x+p.w/2,p.y-34,A.own+' +10','#ff8a1f',24);
+  ftext(p.x+p.w/2,p.y-34,'BONK!','#ff8a1f',34);ftext(p.x+p.w/2,p.y-6,'+10','#ffc928',30);
   G.tumble=Math.max(G.tumble,.7);p.vy=-320;G.shake=reduce?0:0.2;
   beep(300,.25,'square',700,.06);setTimeout(function(){beep(700,.18,'triangle',200,.05)},120);
 }
@@ -257,14 +279,11 @@ function finish(win){
   var total=G.pay.coins+G.pay.ouch+G.pay.own+G.pay.bonus;
   save.coins+=total;store();
   $('walletN').textContent=save.coins;
-  $('ovT').textContent=win?'You made it to the flag!':'Knocked out!';
-  var rows=[['Coins picked up',G.pay.coins],['Ouch pay',G.pay.ouch],['Hurt-yourself pay',G.pay.own]];
-  if(win)rows.push(['Reached the flag',G.pay.bonus]);
-  var html=rows.map(function(r){return '<li><span>'+r[0]+'</span><span>+'+r[1]+'</span></li>'}).join('');
-  html+='<li class="total"><span>Total</span><span>+'+total+'</span></li>';
+  $('ovFace').textContent=win?'🏁':'💫';
+  $('ovN').textContent='+'+total;
   var cheap=ANIMALS.filter(function(a){return save.owned.indexOf(a.id)<0&&a.cost<=save.coins});
-  if(cheap.length)html+='<li class="hint">You can afford a new animal!</li>';
-  $('ovL').innerHTML=html;
+  var bh=$('ovBuy');
+  if(cheap.length){var c0=cheap[0];bh.innerHTML=(c0.img?'<img src="'+gusURL+'" alt="">':'<span>'+c0.emoji+'</span>')+'<span aria-hidden="true">✨</span>';bh.hidden=false}else bh.hidden=true;
   $('over').hidden=false;
   beep(win?660:220,.4,'triangle',win?990:110,.07);
 }
@@ -409,7 +428,7 @@ function draw(){
   ctx.fillStyle='#fff';ctx.fillRect(fx,GROUND-160,7,160);ctx.lineWidth=3;ctx.strokeStyle=INK;ctx.strokeRect(fx,GROUND-160,7,160);
   var wave=Math.sin(g.time*5)*4;
   ctx.beginPath();ctx.moveTo(fx+7,GROUND-160);ctx.lineTo(fx+78,GROUND-134+wave);ctx.lineTo(fx+7,GROUND-108);ctx.closePath();ctx.fillStyle='#ff4d5e';ctx.fill();ctx.stroke();
-  outlined('GOAL',fx+3,GROUND-170,22,'#fff');
+  ctx.fillStyle='#ffc928';ctx.lineWidth=3;ctx.strokeStyle=INK;star(fx+3,GROUND-178,16,g.time*1.5);
   /* player */
   var p=g.p,A=g.A;
   if(!(g.invuln>0&&g.tumble<=0&&Math.floor(g.time*16)%2)){
@@ -440,45 +459,41 @@ function draw(){
   var pw=220,px=(W-pw)/2,pr=Math.min(1,g.p.x/(g.lv.len-120));
   ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillRect(px,16,pw,10);ctx.fillStyle='#58c25b';ctx.fillRect(px,16,pw*pr,10);ctx.lineWidth=3;ctx.strokeStyle=INK;ctx.strokeRect(px,16,pw,10);
   /* prompts */
+  $('bj').classList.toggle('nudge',!!(g.tumble>0&&!g.selfOwned));
   if(g.tumble>0&&!g.selfOwned&&g.ko<=0||(g.ko>0&&!g.selfOwned)){
     var bx2=Math.max(150,Math.min(W-150,p.x+p.w/2-cx)),by2=Math.max(70,p.y-46);
     ctx.fillStyle='#fff';ctx.lineWidth=3;ctx.strokeStyle=INK;
     var pulse=1+Math.sin(g.time*14)*0.04;
     ctx.save();ctx.translate(bx2,by2);ctx.scale(pulse,pulse);
-    ctx.beginPath();ctx.roundRect?ctx.roundRect(-140,-20,280,38,12):ctx.rect(-140,-20,280,38);ctx.fill();ctx.stroke();
-    ctx.fillStyle=INK;ctx.font='22px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('JUMP now: hurt yourself!',0,0);
+    ctx.beginPath();ctx.roundRect?ctx.roundRect(-55,-24,110,46,14):ctx.rect(-55,-24,110,46);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#ffc928';star(-26,0,14,g.time*3);ctx.fillStyle='#ff4d5e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(18,16);ctx.lineTo(18,-4);ctx.lineTo(10,-4);ctx.lineTo(26,-18);ctx.lineTo(42,-4);ctx.lineTo(34,-4);ctx.lineTo(34,16);ctx.closePath();ctx.fill();ctx.stroke();
     ctx.restore();
   }
-  if(g.time<2.6){ctx.globalAlpha=Math.min(1,(2.6-g.time)*1.5);outlined(g.L.name,W/2,H/2-30,52,'#fff');outlined('Reach the flag. Spikes pay you to ouch.',W/2,H/2+10,24,'#ffc928');ctx.globalAlpha=1}
 }
 
 /* ---------- Menu ---------- */
 function renderMenu(){
   $('walletN').textContent=save.coins;
   $('grid').innerHTML=ANIMALS.map(function(a){
-    var owned=save.owned.indexOf(a.id)>=0,sel=save.sel===a.id;
+    var owned=save.owned.indexOf(a.id)>=0,sel=save.sel===a.id,can=save.coins>=a.cost;
     var face=a.img?'<img class="face" src="'+gusURL+'" alt="">':'<span class="face" aria-hidden="true">'+a.emoji+'</span>';
-    var btn;
-    if(owned)btn=sel?'<button class="btn small on" type="button" disabled>Playing as</button>':'<button class="btn small" type="button" data-act="pick" data-id="'+a.id+'">Pick</button>';
-    else btn='<button class="btn small buy" type="button" data-act="buy" data-id="'+a.id+'"'+(save.coins<a.cost?' disabled':'')+'>Buy '+a.cost+'</button>';
-    return '<article class="card animal'+(sel?' sel':'')+'">'+face+'<h3>'+a.name+'</h3><p>'+a.trait+'</p>'+btn+'</article>';
+    var foot=owned?(sel?'<span class="badge" aria-hidden="true">✓</span>':''):'<span class="price"><span class="coin"></span>'+a.cost+'</span>';
+    return '<button type="button" class="card animal'+(sel?' sel':'')+(!owned&&can?' afford':'')+'" data-id="'+a.id+'" aria-label="'+a.name+(owned?'':', '+a.cost+' coins')+'"'+(!owned&&!can?' disabled':'')+'>'+face+foot+'</button>';
   }).join('');
 }
 
 /* ---------- Wiring ---------- */
 $('grid').addEventListener('click',function(e){
-  var b=e.target.closest('button[data-act]');if(!b)return;
+  var b=e.target.closest('button.animal');if(!b||b.disabled)return;
   var a=ANIMALS.filter(function(x){return x.id===b.dataset.id})[0];if(!a)return;
-  if(b.dataset.act==='pick'){save.sel=a.id;store();renderMenu();beep(600,.1,'triangle',900,.04)}
-  else if(b.dataset.act==='buy'&&save.coins>=a.cost&&save.owned.indexOf(a.id)<0){
-    save.coins-=a.cost;save.owned.push(a.id);save.sel=a.id;store();renderMenu();beep(500,.3,'triangle',1200,.06);
-  }
+  if(save.owned.indexOf(a.id)>=0){save.sel=a.id;store();renderMenu();beep(600,.1,'triangle',900,.04)}
+  else if(save.coins>=a.cost){save.coins-=a.cost;save.owned.push(a.id);save.sel=a.id;store();renderMenu();beep(500,.3,'triangle',1200,.06)}
 });
 Array.prototype.forEach.call(document.querySelectorAll('.lvl'),function(b){b.addEventListener('click',function(){beep(500,.1,'square',800,.03);startLevel(+b.dataset.lvl)})});
 $('again').addEventListener('click',function(){startLevel(G.idx)});
 $('back').addEventListener('click',showMenu);
 $('quit').addEventListener('click',function(){if(G&&G.running&&(G.pay.coins+G.pay.ouch+G.pay.own)>0){finish(false)}else showMenu()});
-$('snd').addEventListener('click',function(){sound=!sound;this.textContent=sound?'Sound on':'Sound off';this.setAttribute('aria-pressed',String(sound))});
+$('snd').addEventListener('click',function(){sound=!sound;this.classList.toggle('off',!sound);this.setAttribute('aria-pressed',String(sound))});
 
 function hold(el,on,off){
   el.addEventListener('pointerdown',function(e){e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch(x){}on()});
